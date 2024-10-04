@@ -5,7 +5,7 @@ const ctx = canvas.getContext ( "2d" );
 const centerX = canvas.width / 2;
 const centerY = canvas.height / 2;
 
-function drawGear ( radius, toothCount, toothHeight) {
+function drawGear ( radius, toothCount, toothHeight ) {
 
 	ctx.save ();
 
@@ -28,6 +28,15 @@ function drawGear ( radius, toothCount, toothHeight) {
 	ctx.restore ();
 }
 
+function drawHand ( radius, toothCount, toothHeight, length , width, color ) {
+	drawGear ( radius, toothCount, toothHeight );
+
+	ctx.save ();
+	ctx.fillStyle = color;
+	ctx.fillRect ( -width/2, 0, width, -length ); 
+	ctx.restore ();
+}
+
 let angle = 0;
 
 function draw () {
@@ -36,14 +45,33 @@ function draw () {
 	
 	ctx.clearRect ( 0, 0, canvas.width, canvas.height );
 
-	ctx.translate ( centerX, centerY );
+	ctx.translate ( centerX + 350, centerY );
+	
+	//ctx.scale ( 0.1, 0.1 );
+
 	ctx.rotate ( angle );
 
-	drawGear ( 100, 10, 15 );
+	ctx.rotate ( ( Math.PI / 180 ) * 1.8 )
+
+	drawGear ( 100, 100, 1.5 );
+	//drawHand ( 50, 5, 15, 100, 10, "red" );
 
 	ctx.restore ();
 
-	angle += ( Math.PI / 180) * 1;
+	ctx.save();
+	ctx.translate ( centerX + 462, centerY );
+	ctx.rotate (  angle * -10  );
+	drawHand ( 10, 10, 1.5, 150, 10, "red" );
+	ctx.restore ();
+
+	ctx.save();
+	ctx.translate ( centerX - 352, centerY );
+	ctx.rotate ( angle / -6);
+	drawHand ( 600, 600, 1.5, 1000, 20, "black" );
+	ctx.restore ();
+
+	angle += ( Math.PI / 180) * -0.36;
+
 
 }
 

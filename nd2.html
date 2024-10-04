@@ -1,0 +1,71 @@
+<html>
+ <head>
+  <script type="application/javascript">
+
+    function draw() {
+      var canvas = document.getElementById('canvas');
+      if (canvas.getContext) {
+        var ctx = canvas.getContext("2d");
+
+// Draw border
+      ctx.beginPath();
+      ctx.moveTo(0,0);
+      ctx.lineTo(600,0);
+      ctx.lineTo(600,600);
+      ctx.lineTo(0,600);
+      ctx.closePath();
+      ctx.stroke(); 
+// step = 5
+      drawF(1);
+      }
+        // Recursive draw 
+        function drawF(step) {
+          if (step > 0) {
+          step = step-1; 
+          ctx.save();
+          ctx.save();
+	  ctx.save();
+          ctx.transform(-0.5, 0, 0, -0.5, 300, 300);  
+          drawF(step); 
+          ctx.restore();
+          ctx.transform(0, 0.5, -0.5, 0, 600, 0);  
+          drawF(step); 
+          ctx.restore();
+          ctx.transform(0, -0.5, 0.5, 0, 300, 600);  
+          drawF(step); 
+	  ctx.restore();
+	  ctx.transform(0.5, 0, 0, 0.5, 0, 300);
+	  drawF(step);
+          }
+          else drawT();    
+        }       
+
+        function drawT() {
+        // Filled red triangle
+        //ctx.fillStyle = "rgb(0,0,0)";
+        ctx.beginPath();
+        ctx.moveTo(0,0);
+        ctx.lineTo(150,0);
+        ctx.lineTo(150,150);
+	ctx.lineTo(450,150);
+	ctx.lineTo(450,0);
+	ctx.lineTo(600,0);
+	ctx.lineTo(600,300);
+	ctx.lineTo(450,300);
+	ctx.lineTo(450,450);
+	ctx.lineTo(600,450);
+	ctx.lineTo(600,600);
+	ctx.lineTo(300,600);
+	ctx.lineTo(300,300);
+	ctx.lineTo(0,300);
+	ctx.lineTo(0,0);
+        ctx.fill();
+        }       
+    }
+  </script>
+ </head>
+ <body onload="draw();">
+   <h1>Sierpinski triangle</h1>
+   <canvas id="canvas" width="600" height="600"></canvas>
+ </body>
+</html>
