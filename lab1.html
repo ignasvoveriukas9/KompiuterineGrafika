@@ -2,11 +2,12 @@
  <head>
   <script type="application/javascript">
 
+	var iter = 0;
+
 	function draw(step) {
       		var canvas = document.getElementById('canvas');
       		if (canvas.getContext) {
         		var ctx = canvas.getContext("2d");
-      			//var slider = document.getElementById('myRange');
 
 			ctx.save();
 
@@ -22,31 +23,39 @@
       			ctx.stroke(); 
 			// step = 5
 
-      			drawF(step);
+      			drawF(step,step);
 			ctx.restore();
       		}
 	
         	// Recursive draw 
-		function drawF(step) {
+		function drawF(step, totalSteps) {
+
         		if (step > 0) {
           			step = step-1;
+				if (step == totalSteps -1) {ctx.fillStyle = "rgb(255,0,0)"}
           			ctx.save();
+				if (step == totalSteps -1) {ctx.fillStyle = "rgb(0,255,0)"}
           			ctx.save();
+				if (step == totalSteps -1) {ctx.fillStyle = "rgb(0,0,255)"}
 	  			ctx.save();
+				if (step == totalSteps -1) {ctx.fillStyle = "rgb(255,0,255)"}
+				iter += 1;
 				ctx.transform(-0.5, 0, 0, -0.5, 300, 300);  
-          			drawF(step); 
+          			drawF(step, totalSteps); 
           			ctx.restore();
           			ctx.transform(0, 0.5, -0.5, 0, 600, 0);  
-          			drawF(step); 
+          			drawF(step, totalSteps); 
           			ctx.restore();
           			ctx.transform(0, 0.5, 0.5, 0, 300, 300);  
-          			drawF(step); 
+          			drawF(step, totalSteps); 
 	  			ctx.restore();
 	  			ctx.transform(-0.25, 0, 0, 0.25, 225, 375);
-	  			drawF(step);
+	  			drawF(step, totalSteps);
           		}
-          		else drawT();    
-        	}       
+			else {
+				drawT();    
+			}       
+		}
 
         	function drawT() {
         		// Filled red triangle
@@ -74,7 +83,7 @@
 	window.onload = function() {
 		var slider = document.getElementById('myRange');
 		slider.oninput = function() {
-			draw(slider.value);
+			draw(slider.value, slider.value);
 		};
 		draw(0);
 	};
