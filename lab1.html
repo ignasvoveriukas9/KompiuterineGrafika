@@ -2,7 +2,9 @@
  <head>
   <script type="application/javascript">
 
-	var iter = 0;
+	function sleep (ms) {
+		return new Promise ( resolve => setTimeout ( resolve, ms ));
+	}
 
 	function draw(step) {
       		var canvas = document.getElementById('canvas');
@@ -10,19 +12,7 @@
         		var ctx = canvas.getContext("2d");
 
 			ctx.save();
-
       			ctx.clearRect(0, 0, 600, 600);
-
-			// Draw border
-      			ctx.beginPath();
-      			ctx.moveTo(0,0);
-      			ctx.lineTo(600,0);
-      			ctx.lineTo(600,600);
-      			ctx.lineTo(0,600);
-      			ctx.closePath();
-      			ctx.stroke(); 
-			// step = 5
-
       			drawF(step,step);
 			ctx.restore();
       		}
@@ -39,7 +29,6 @@
 				if (step == totalSteps -1) {ctx.fillStyle = "rgb(0,0,255)"}
 	  			ctx.save();
 				if (step == totalSteps -1) {ctx.fillStyle = "rgb(255,0,255)"}
-				iter += 1;
 				ctx.transform(-0.5, 0, 0, -0.5, 300, 300);  
           			drawF(step, totalSteps); 
           			ctx.restore();
@@ -53,31 +42,160 @@
 	  			drawF(step, totalSteps);
           		}
 			else {
-				drawT();    
+				drawT(ctx);    
 			}       
 		}
+	}
 
-        	function drawT() {
-        		// Filled red triangle
-        		//ctx.fillStyle = "rgb(0,0,0)";
-        		ctx.beginPath();
-        		ctx.moveTo(0,0);
-        		ctx.lineTo(150,0);
-        		ctx.lineTo(150,150);
-			ctx.lineTo(450,150);
-			ctx.lineTo(450,0);
-			ctx.lineTo(600,0);
-			ctx.lineTo(600,300);
-			ctx.lineTo(450,300);
-			ctx.lineTo(450,450);
-			ctx.lineTo(600,450);
-			ctx.lineTo(600,600);
-			ctx.lineTo(300,600);
-			ctx.lineTo(300,300);
-			ctx.lineTo(0,300);
-			ctx.lineTo(0,0);
-        		ctx.fill();
-        	}
+	function drawT(ctx) {
+		ctx.beginPath();
+        	ctx.moveTo(0,0);
+		ctx.lineTo(150,0);
+        	ctx.lineTo(150,150);
+		ctx.lineTo(450,150);
+		ctx.lineTo(450,0);
+		ctx.lineTo(600,0);
+		ctx.lineTo(600,300);
+		ctx.lineTo(450,300);
+		ctx.lineTo(450,450);
+		ctx.lineTo(600,450);
+		ctx.lineTo(600,600);
+		ctx.lineTo(300,600);
+		ctx.lineTo(300,300);
+		ctx.lineTo(0,300);
+		ctx.lineTo(0,0);
+        	ctx.fill();
+        }
+
+	function animationInit() {
+		var canvas = document.getElementById('canvas2');
+		if (canvas.getContext) {
+			var ctx = canvas.getContext("2d");
+
+			ctx.save();
+			ctx.clearRect(0, 0, 600, 600);	  
+			drawT(ctx);
+			ctx.restore();
+		}
+	}
+
+	async function animateT1() {
+		var canvas = document.getElementById('canvas2');
+		if (canvas.getContext) {
+			var ctx = canvas.getContext("2d");
+
+			ctx.save();
+			ctx.clearRect(0, 0, 600, 600);	  
+
+			let t = 0;
+
+			while ( t <= 1.01) {
+
+				ctx.save();	  	  
+				ctx.clearRect(0,0,600,600);
+
+				ctx.translate(300*t,300*t);
+				ctx.scale( (1 - t) - (t * 0.5), (1 - t) - ( t * 0.5 ));
+
+				drawT(ctx);
+
+				ctx.restore();
+
+				t += 0.01;
+				await sleep (10);	
+			}
+			ctx.restore();
+		}
+	}
+
+	async function animateT2() {
+		var canvas = document.getElementById('canvas2');
+		if (canvas.getContext) {
+			var ctx = canvas.getContext("2d");
+
+			ctx.save();
+			ctx.clearRect(0, 0, 600, 600);	  
+
+			let t = 0;
+
+			while ( t <= 1.01) {
+
+				ctx.save();	  		  
+				ctx.clearRect(0,0,600,600);
+
+				ctx.translate(600*t,0*t);
+				ctx.rotate( (Math.PI / 180 ) * ( 90 * t ) )
+				ctx.scale( (1 - t) + (t * 0.5), (1 - t) + ( t * 0.5 ));
+
+				drawT(ctx);
+
+				ctx.restore();
+
+				t += 0.01;
+				await sleep (10);
+			}
+			ctx.restore();
+		}
+	}
+
+	async function animateT3() {
+		var canvas = document.getElementById('canvas2');
+		if (canvas.getContext) {
+			var ctx = canvas.getContext("2d");
+
+			ctx.save();
+			ctx.clearRect(0, 0, 600, 600);
+				  
+			let t = 0;
+
+			while ( t <= 1.01) {
+
+				ctx.save();	  		  
+				ctx.clearRect(0,0,600,600);
+
+				ctx.translate(300*t, 300*t);
+				ctx.rotate( (Math.PI / 180 ) * ( 90 * t ) )
+				ctx.scale( (1 - t) + (t * 0.5), (1 - t) - ( t * 0.5 ));
+
+				drawT(ctx);
+
+				ctx.restore();
+
+				t += 0.01;
+				await sleep (10);
+				
+			}
+			ctx.restore();
+		}
+	}
+
+	async function animateT4() {
+		var canvas = document.getElementById('canvas2');
+		if (canvas.getContext) {
+			var ctx = canvas.getContext("2d");
+
+			ctx.save();
+			ctx.clearRect(0, 0, 600, 600);
+				  
+			let t = 0;
+
+			while ( t <= 1.01) {
+
+				ctx.save();	  		  
+				ctx.clearRect(0,0,600,600);
+
+				ctx.translate(225*t, 375*t);
+				ctx.scale( (1 - t) - (t * 0.25), (1 - t) + ( t * 0.25 ));
+
+				drawT(ctx);
+
+				ctx.restore();
+
+				t += 0.01;
+				await sleep (10);
+			}
+			ctx.restore();
+		}
 	}
 
 	window.onload = function() {
@@ -85,8 +203,31 @@
 		slider.oninput = function() {
 			draw(slider.value, slider.value);
 		};
+		var button1 = document.getElementById('buttonT1');
+		button1.onclick = function() {
+			animateT1();
+		};
+		var button2 = document.getElementById('buttonT2');
+		button2.onclick = function() {
+			animateT2();
+		};
+		var button3 = document.getElementById('buttonT3');
+		button3.onclick = function() {
+			animateT3();
+		};
+		var button4 = document.getElementById('buttonT4');
+		button4.onclick = function() {
+			animateT4();
+		};
+		var buttonB = document.getElementById('buttonClear');
+		buttonB.onclick = function() {
+			animationInit();
+		};
 		draw(0);
+		animationInit();
 	};
+
+	
   </script>
  </head>
  <body>
@@ -94,6 +235,14 @@
    <div class = "slidercontainer">
 	   <input type="range" min="0" max="6" value="0" class="slider" id="myRange">
    </div>
-   <canvas id="canvas" width="600" height="600"></canvas>
+   <canvas id="canvas" width="600" height="600" style="border:1px solid black;"></canvas>
+   <div class = "animateconteiner">
+	   <button type="button" id="buttonT1">T1</button>
+	   <button type="button" id="buttonT2">T2</button>
+	   <button type="button" id="buttonT3">T3</button>
+	   <button type="button" id="buttonT4">T4</button>
+	   <button type="button" id="buttonClear">Back to strat position</button>
+   </div>
+   <canvas id="canvas2" width="600" height="600" style="border:1px solid black;"></canvas>
  </body>
 </html>
