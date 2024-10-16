@@ -108,7 +108,8 @@
 				ctx.clearRect(0,0,600,600);
 
 				ctx.translate(300*t,300*t);
-				ctx.scale( (1 - t) - (t * 0.5), (1 - t) - ( t * 0.5 ));
+				ctx.rotate( (Math.PI / 180 ) * (180 * t) )
+				ctx.scale( (1 - t) + (t * 0.5), (1 - t) + ( t * 0.5 ));
 
 				drawT(ctx);
 
@@ -247,7 +248,8 @@
   </script>
  </head>
  <body>
-   <h1>Fraktalo paveiksliukas. 2110632</h1>
+   <h1>Fraktalo paveiksliukas. stud numeris: 2110632</h1>
+   <p>Atsiskaitita 10-16. Pakeitimas t1 animacija vietoj mastelio keitimo su minusu i posuki 180 laipsniu</p>
    <div class = "slidercontainer">
 	   <input type="range" min="0" max="6" value="0" class="slider" id="myRange">
    </div>
