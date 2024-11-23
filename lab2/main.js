@@ -55,8 +55,8 @@ spotLight.decay = 1.5;
 scene.add( spotLight );
 scene.add( spotLight.target );
 
-const helper = new THREE.CameraHelper( spotLight.shadow.camera );
-scene.add( helper );
+//const helper = new THREE.CameraHelper( spotLight.shadow.camera );
+//scene.add( helper );
 
 // add abientLight
 const ambiantLight = new THREE.AmbientLight ( 0xffffff, 0.5 );
@@ -129,7 +129,7 @@ function getStairs ( stepCount ) {
 		stair.position.x = pos;
 		plate.position.x = pos - ( gaph * 0.75 ) + 0.5;
 		supportCylinder.position.x = pos;
-		railSupport.position.x = pos - 0.5;
+		railSupport.position.x = pos - 0.3;
 
 		stair.position.y = gapv * ( i + 1 ) + ( 0.15 * ( ( 1 - ( ( i % 2 ) * 2 ) ) * ( - 1 + ( ( stepCount % 2 ) * 2 ) ) ) );
 		plate.position.y = gapv * ( i + 1 ) - 0.2;
@@ -179,7 +179,7 @@ function getStairs ( stepCount ) {
 		stair.position.y = 30 - ( gapv * i ) + ( 0.15 * ( 1 - ( ( i % 2 ) * 2 ) ) );
 		plate.position.y = 30 - ( gapv * i ) - 0.2;
 		supportCylinder.position.y = 30 - ( gapv * i ) - ( 0.5 * gapv ) - 0.15;
-		railSupport.position.y = 30 - ( gapv * i ) + 2.5;
+		railSupport.position.y = 30 - ( gapv * i ) + 2.5 -0.15;
 
 		plate.position.z = ( - gaph * 0.75 ) - 0.5 + ( 10 / stepCount);
 		railSupport.position.z = -0.5;
