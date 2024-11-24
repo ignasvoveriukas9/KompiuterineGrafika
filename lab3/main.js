@@ -5,20 +5,26 @@ import { ConvexGeometry } from 'three/addons/geometries/ConvexGeometry.js';
 
 const scene = new THREE.Scene();
 const scene2 = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+const camera1 = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+const camera2 = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
 
 
-// position and point the camera to the center of the scene
-camera.position.x = -30;
-camera.position.y = 40;
-camera.position.z = 30;
-camera.lookAt(scene.position);
+// position and point the camera 1 to the center of the scene
+camera1.position.x = -100;
+camera1.position.y = 90;
+camera1.position.z = 120;
+camera1.lookAt(scene.position);
+
+camera2.position.x = -100;
+camera2.position.y = 80;
+camera2.position.z = 100;
 
 var renderer = new THREE.WebGLRenderer({antialias: true});
 renderer.setSize( window.innerWidth, window.innerHeight );
 renderer.setClearColor( 0xEEEEEE, 1.0);
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap; // Use soft shadows for better results
+renderer.outputColorSpace = THREE.SRGBColorSpace;
 document.body.appendChild( renderer.domElement );
 
 // axes helper
@@ -31,25 +37,89 @@ const ambiantLight = new THREE.AmbientLight ( 0xffffff, 1 );
 scene.add ( ambiantLight );
 scene2.add ( ambiantLight );
 
+// scene 1
+
+var shape = generateShape ( generatePoints ( 10, 20, 100000 ) );
+
+scene.add ( shape );
+
+// scene 2
+
 // add spotlight for the shadows
 var spotLight = new THREE.SpotLight( 0xffffff, 250 );
-spotLight.position.set( 20, 25, 40 );
+spotLight.position.set( 30, 50, 40 );
 spotLight.target.position.set( 0, 0, 0 );
 spotLight.castShadow = true;
 spotLight.decay = 1.5;
 scene2.add( spotLight );
 scene2.add( spotLight.target );
 
-var shape = generateShape ( generatePoints ( 10, 20, 100000 ) );
+const loader = new THREE.TextureLoader();
+const texture = loader.load( './tiles_0059_color_1k.jpg' );
+texture.colorSpace = THREE.SRGBColorSpace;
 
-scene.add ( shape );
+// Set the texture to repeat
+texture.wrapS = THREE.RepeatWrapping; // Horizontal wrapping
+texture.wrapT = THREE.RepeatWrapping; // Vertical wrapping
+
+// Set how many times the texture should repeat
+texture.repeat.set(4, 4); // Adjust these values for desired tiling
+texture.offset.set(0.25, 0.25); // Shift the texture halfway along each axis
+
+var planeGeometry = new THREE.PlaneGeometry(1000,1000);
+var planeMaterial = new THREE.MeshStandardMaterial({map: texture,});
+var GroundPlane = new THREE.Mesh(planeGeometry,planeMaterial);
+GroundPlane.receiveShadow  = true;
+GroundPlane.rotation.x = -Math.PI * 0.5;
+scene2.add ( GroundPlane );
+
+var kingStatic = generateFigure ();
+kingStatic.position.x = -100;
+scene2.add ( kingStatic );
+camera2.lookAt ( new THREE.Vector3 ( kingStatic.position.x, kingStatic.position.y + 35, kingStatic.position.z ) );
 
 var king = generateFigure ();
 scene2.add ( king );
 
-const trackBallControls = new TrackballControls(camera, renderer.domElement);
+var camera = camera2
+
+//const trackBallControls = new TrackballControls(camera, renderer.domElement);
 
 generateFigure();
+
+var controls = new function() {
+	this.cam1_fov = 50;
+	this.cam2_zoomFactor = 50; // Factor to control dolly zoom
+            
+    	this.updateFOV = function () {
+        	camera1.fov = this.cam1_fov; // Update the camera's FOV
+        	camera1.updateProjectionMatrix (); // Apply the changes to the camera
+    	};
+    	
+    	this.updateDollyZoom = function () {
+        // Adjust the camera's FOV based on zoomFactor
+        camera2.fov = this.cam2_zoomFactor; // Example calculation
+        camera2.updateProjectionMatrix();
+
+        // Adjust the camera's position.z to simulate dolly movement
+        var distance = 100 / ( 2 * Math.tan ( 0.5 * this.cam2_zoomFactor * Math.PI / 180 ) )
+        camera2.position.z = Math.cos ( Math.PI / 180 * 35 ) * distance;
+        camera2.position.y = Math.sin ( Math.PI / 180 * 35 ) * distance + 35;
+    };
+}
+
+var gui = new GUI ();
+//gui.add ( controls, 'fov', 10, 100 ).step ( 1 ).onChange ( controls.updateFOV () );
+gui.add(controls, 'cam1_fov', 10, 100).step(1).onChange(function(value) {
+    controls.cam1_fov = value;         // Update the control's FOV value
+    controls.updateFOV();         // Call the update function to apply changes
+});
+gui.add(controls, 'cam2_zoomFactor', 40, 150).step(1).onChange(function (value) {
+    controls.cam2_zoomFactor = value;    // Update the control's zoom factor
+    controls.updateDollyZoom();    // Apply the dolly zoom effect
+});
+
+var step = 0;
 
 render();
 
@@ -104,6 +174,9 @@ function generateFigure () {
             
             var figure = new THREE.Object3D ();
             
+            latheMesh.castShadow = true;
+            crossMesh.castShadow = true;
+            
             figure.add ( latheMesh );
             figure.add ( crossMesh );
 
@@ -132,8 +205,14 @@ function drawCrossShape() {
 }
 
 function render() {
+
+	// move figure
+        step += 0.03;
+        king.position.z = 0 + ( 25 * (Math.cos(step)));
+        king.position.y = 0 + ( 20 * Math.abs(Math.sin(step)));
+        
         // render
 	renderer.render( scene2, camera );
 	requestAnimationFrame( render );
-	trackBallControls.update(); 
+	//trackBallControls.update(); 
 }
