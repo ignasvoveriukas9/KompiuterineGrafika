@@ -7,6 +7,7 @@ const scene = new THREE.Scene();
 const scene2 = new THREE.Scene();
 const camera1 = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
 const camera2 = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+const camera3 = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
 
 
 // position and point the camera 1 to the center of the scene
@@ -18,6 +19,10 @@ camera1.lookAt(scene.position);
 camera2.position.x = -100;
 camera2.position.y = 80;
 camera2.position.z = 100;
+
+camera3.position.x = 0;
+camera3.position.y = 120;
+camera3.position.z = 0;
 
 var renderer = new THREE.WebGLRenderer({antialias: true});
 renderer.setSize( window.innerWidth, window.innerHeight );
@@ -81,7 +86,9 @@ camera2.lookAt ( new THREE.Vector3 ( kingStatic.position.x, kingStatic.position.
 var king = generateFigure ();
 scene2.add ( king );
 
-var camera = camera2
+camera3.lookAt ( king.position );
+
+var camera = camera3
 
 //const trackBallControls = new TrackballControls(camera, renderer.domElement);
 
@@ -103,9 +110,24 @@ var controls = new function() {
 
         // Adjust the camera's position.z to simulate dolly movement
         var distance = 100 / ( 2 * Math.tan ( 0.5 * this.cam2_zoomFactor * Math.PI / 180 ) )
-        camera2.position.z = Math.cos ( Math.PI / 180 * 35 ) * distance;
-        camera2.position.y = Math.sin ( Math.PI / 180 * 35 ) * distance + 35;
-    };
+        //camera2.position.z = Math.cos ( Math.PI / 180 * 35 ) * distance;
+        //camera2.position.y = Math.sin ( Math.PI / 180 * 35 ) * distance + 35;
+        camera2.position.z = distance;
+        camera2.position.y = 23;
+        camera2.lookAt ( new THREE.Vector3 ( kingStatic.position.x, kingStatic.position.y + 23, kingStatic.position.z ) );
+        };
+        
+        this.cam_1 = function() {
+		camera = camera1;
+	};
+	
+	this.cam_2 = function() {
+		camera = camera2;
+	};
+	
+	this.cam_3 = function() {
+		camera = camera3;
+	};
 }
 
 var gui = new GUI ();
@@ -118,6 +140,10 @@ gui.add(controls, 'cam2_zoomFactor', 40, 150).step(1).onChange(function (value) 
     controls.cam2_zoomFactor = value;    // Update the control's zoom factor
     controls.updateDollyZoom();    // Apply the dolly zoom effect
 });
+
+gui.add(controls, 'cam_1');
+gui.add(controls, 'cam_2');
+gui.add(controls, 'cam_3');
 
 var step = 0;
 
@@ -210,6 +236,22 @@ function render() {
         step += 0.03;
         king.position.z = 0 + ( 25 * (Math.cos(step)));
         king.position.y = 0 + ( 20 * Math.abs(Math.sin(step)));
+        
+        //camera3.lookAt ( king.position );
+        
+        if ( king.position.z >= 5 ) {
+        	camera3.up = new THREE.Vector3 ( 0, 1, 0 );
+        }
+        
+        if ( king.position.z < 5 & king.position.z > -5 ){
+        	camera3.up = new THREE.Vector3 ( 0.5 , 0.5, 0 ).normalize ();
+        }
+        
+        if ( king.position.z <= -5 ) {
+        	camera3.up = new THREE.Vector3 ( 0, 1, 0 );
+        }
+        
+        camera3.lookAt ( king.position );
         
         // render
 	renderer.render( scene2, camera );
