@@ -86,7 +86,6 @@ function generateShapeWithUV(points) {
 
         const phi = Math.atan2(z, x);
         const u = (phi + Math.PI) / (2 * Math.PI); // Normalize phi to [0, 1]
-        //const u = (phi ) / (2 * Math.PI);
         const v = (y - bbox.min.y) / height; // Normalize y to [0, 1]
 
         uv.push(u, v);
@@ -107,8 +106,6 @@ function generateShapeWithUV(points) {
 
 function fixSeams(geometry) {
     const uv = geometry.attributes.uv.array; // UV array (flat: [u1, v1, u2, v2, ...])
-    const position = geometry.attributes.position.array; // Position array for debugging
-    const indices = geometry.index ? geometry.index.array : null; // Use indices if indexed
 
     // Helper function to adjust UV
     const adjustUV = (i) => {
@@ -117,7 +114,6 @@ function fixSeams(geometry) {
     };
 
     // Iterate through each triangle
-    //const triangleCount = indices ? indices.length / 3 : uv.length / 6;
     const triangleCount = uv.length / 6;
     console.log ( uv.length );
     for (let i = 0; i < triangleCount; i++) {
