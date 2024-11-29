@@ -30,14 +30,7 @@ scene.add ( axesHelper );
 const ambiantLight = new THREE.AmbientLight ( 0xffffff, 1 );
 scene.add ( ambiantLight );
 
-//var shape = generateShape ( generatePoints ( 10, 20, 100000 ) );
-
-//scene.add ( shape );
-
 var shape = generateShapeWithUV(generatePoints(10, 20, 500));
-//scene.add(shape);
-
-//fixSeams(shape.geometry);
 scene.add(shape);
 
 const trackBallControls = new TrackballControls(camera, renderer.domElement);
@@ -98,15 +91,15 @@ function generateShapeWithUV(points) {
 
         uv.push(u, v);
     });
-    
-    //uv = fixUV ( uv );
 
     geometry.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2));
     
-    //geometry = fixSeams ( geometry );
+    geometry = fixSeams ( geometry );
 
     // Assign texture
     const texture = new THREE.TextureLoader().load('./tiles_0059_color_1k.jpg');
+    texture.wrapS = THREE.RepeatWrapping; // Horizontal wrapping
+    texture.wrapT = THREE.RepeatWrapping; // Vertical wrapping
     const material = new THREE.MeshStandardMaterial({ map: texture });
 
     return new THREE.Mesh(geometry, material);
@@ -128,11 +121,7 @@ function fixSeams(geometry) {
     const triangleCount = uv.length / 6;
     console.log ( uv.length );
     for (let i = 0; i < triangleCount; i++) {
-        // Get vertex indices of the triangle
-        //const v0 = indices ? indices[i * 3] : i * 3;
-        //const v1 = indices ? indices[i * 3 + 1] : i * 3 + 1;
-        //const v2 = indices ? indices[i * 3 + 2] : i * 3 + 2;
-        
+        // Get vertex indices of the triangle      
         const v0 = i * 3;
         const v1 = i * 3 + 1;
         const v2 = i * 3 + 2;
@@ -142,30 +131,18 @@ function fixSeams(geometry) {
         const u1 = uv[v1 * 2];
         const u2 = uv[v2 * 2];
 
-        // Check if the triangle spans the seam
-        if (
-            (u0 < 0.5 && u1 < 0.5 && u2 > 0.5) ||
-            (u0 > 0.5 && u1 > 0.5 && u2 < 0.5) ||
-            (u0 < 0.5 && u2 < 0.5 && u1 > 0.5) ||
-            (u0 > 0.5 && u2 > 0.5 && u1 < 0.5) ||
-            (u1 < 0.5 && u2 < 0.5 && u0 > 0.5) ||
-            (u1 > 0.5 && u2 > 0.5 && u0 < 0.5)
-        ) {
-            // Fix the seam by adjusting UVs
-            if (u0 < 0.5 && u1 < 0.5) adjustUV(v2);
-            else if (u1 < 0.5 && u2 < 0.5) adjustUV(v0);
-            else if (u0 < 0.5 && u2 < 0.5) adjustUV(v1);
-	    else if (u0 > 0.5 && u1 > 0.5) adjustUV(v2);
-            else if (u1 > 0.5 && u2 > 0.5) adjustUV(v0);
-            else if (u0 > 0.5 && u2 > 0.5) adjustUV(v1);
+        // Check if the triangle spans the seam     
+        if ( Math.abs ( u0 - u1 ) > 0.5 && Math.abs ( u0 - u2 ) > 0.5 ) {
+        	adjustUV ( v0 );
+        } else if ( Math.abs ( u1 - u0 ) > 0.5 && Math.abs ( u1 - u2 ) > 0.5 ) {
+        	adjustUV ( v1 );
+        } else if ( Math.abs ( u2 - u0 ) > 0.5 && Math.abs ( u2 - u1 ) > 0.5 ) {
+        	adjustUV ( v2 );
         }
+        
     }
     
-    //geometry.attributes.uv.array = uv;
-
-    // Update the UV attribute
-    geometry.attributes.uv.needsUpdate = true;
-    //return geometry
+    return geometry
 }
 
 function render() {
