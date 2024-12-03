@@ -3,22 +3,28 @@ import { TrackballControls } from 'three/examples/jsm/controls/TrackballControls
 import { GUI } from 'dat.gui';
 import { ConvexGeometry } from 'three/addons/geometries/ConvexGeometry.js';
 
-const scene = new THREE.Scene();
 const scene2 = new THREE.Scene();
 const camera1 = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
 const camera2 = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
 const camera3 = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
 
+//const cameraBody1 = getCameraBody ();
+const cameraBody2 = getCameraBody ();
+const cameraBody3 = getCameraBody ();
+
+//scene2.add ( cameraBody1 );
+scene2.add ( cameraBody2 );
+scene2.add ( cameraBody3 );
+
+const helper = new THREE.CameraHelper( camera2 );
+scene2.add( helper );
+
 
 // position and point the camera 1 to the center of the scene
 camera1.position.x = -100;
-camera1.position.y = 90;
+camera1.position.y = 80;
 camera1.position.z = 120;
-camera1.lookAt(scene.position);
-
-camera2.position.x = -100;
-camera2.position.y = 80;
-camera2.position.z = 100;
+camera1.lookAt(scene2.position);
 
 camera3.position.x = 0;
 camera3.position.y = 120;
@@ -34,19 +40,11 @@ document.body.appendChild( renderer.domElement );
 
 // axes helper
 var axesHelper = new THREE.AxesHelper( 20 );
-scene.add ( axesHelper );
 scene2.add ( axesHelper );
 
 // add abientLight
 const ambiantLight = new THREE.AmbientLight ( 0xffffff, 1 );
-scene.add ( ambiantLight );
 scene2.add ( ambiantLight );
-
-// scene 1
-
-var shape = generateShape ( generatePoints ( 10, 20, 100000 ) );
-
-scene.add ( shape );
 
 // scene 2
 
@@ -81,6 +79,11 @@ scene2.add ( GroundPlane );
 var kingStatic = generateFigure ();
 kingStatic.position.x = -100;
 scene2.add ( kingStatic );
+
+camera2.position.x = -100;
+camera2.position.y = 23;
+camera2.position.z = 100 / ( 2 * Math.tan ( 0.5 * 50 * Math.PI / 180 ) );
+
 camera2.lookAt ( new THREE.Vector3 ( kingStatic.position.x, kingStatic.position.y + 35, kingStatic.position.z ) );
 
 var king = generateFigure ();
@@ -88,11 +91,10 @@ scene2.add ( king );
 
 camera3.lookAt ( king.position );
 
-var camera = camera3
+//const cameraBody = getCameraBody ();
+//scene2.add ( cameraBody );
 
-//const trackBallControls = new TrackballControls(camera, renderer.domElement);
-
-generateFigure();
+var camera = camera1;
 
 var controls = new function() {
 	this.cam1_fov = 50;
@@ -110,8 +112,6 @@ var controls = new function() {
 
         // Adjust the camera's position.z to simulate dolly movement
         var distance = 100 / ( 2 * Math.tan ( 0.5 * this.cam2_zoomFactor * Math.PI / 180 ) )
-        //camera2.position.z = Math.cos ( Math.PI / 180 * 35 ) * distance;
-        //camera2.position.y = Math.sin ( Math.PI / 180 * 35 ) * distance + 35;
         camera2.position.z = distance;
         camera2.position.y = 23;
         camera2.lookAt ( new THREE.Vector3 ( kingStatic.position.x, kingStatic.position.y + 23, kingStatic.position.z ) );
@@ -136,7 +136,7 @@ gui.add(controls, 'cam1_fov', 10, 100).step(1).onChange(function(value) {
     controls.cam1_fov = value;         // Update the control's FOV value
     controls.updateFOV();         // Call the update function to apply changes
 });
-gui.add(controls, 'cam2_zoomFactor', 40, 150).step(1).onChange(function (value) {
+gui.add(controls, 'cam2_zoomFactor', 30, 120).step(1).onChange(function (value) {
     controls.cam2_zoomFactor = value;    // Update the control's zoom factor
     controls.updateDollyZoom();    // Apply the dolly zoom effect
 });
@@ -148,29 +148,6 @@ gui.add(controls, 'cam_3');
 var step = 0;
 
 render();
-
-function generatePoints ( width, height, n) {
-	var points = [];
-        for ( var i = 0; i < n; i++ ) {
-        	var randomX = Math.round(Math.random() * width ) - ( width * 0.5 );
-                var randomY = Math.round(Math.random() * height ) - ( height * 0.5 );
-                var randomZ = Math.round(Math.random() * width ) - ( width * 0.5 );
-                
-                if ( ( ( randomX * randomX ) + ( randomZ * randomZ ) ) <= ( ( width * 0.5 ) * ( width * 0.5 ) ) ){
-                	points.push(new THREE.Vector3(randomX, randomY, randomZ));
-                }
-        }
-        
-        return points
-}
-
-function generateShape ( points ) {
-	//var meshMaterial = new THREE.MeshLambertMaterial({color: 0x00ff00});
-	var meshMaterial = new THREE.MeshNormalMaterial();
-	var hullGeometry = new ConvexGeometry(points);
-        var hullMesh = new THREE.Mesh( hullGeometry, meshMaterial );
-        return hullMesh
-}
 
 function generateFigure () {
             
@@ -230,31 +207,71 @@ function drawCrossShape() {
 	return shape;
 }
 
+function getCameraBody () {
+
+const bodyGeom = new THREE.BoxGeometry ( 2, 4, 8 );
+const meshMaterial = new THREE.MeshLambertMaterial ( { color: 0xf0f0f0, transparent: false } );
+const body = new THREE.Mesh ( bodyGeom, meshMaterial );
+
+const lensGeom = new THREE.CylinderGeometry ( 0.75, 0.75, 1 );
+const lens = new THREE.Mesh ( lensGeom, meshMaterial );
+lens.rotation.x = Math.PI / 2;
+lens.position.z = - 4.5;
+
+const tapeGeom = new THREE.CylinderGeometry ( 2, 2, 1 );
+const tape1 = new THREE.Mesh ( tapeGeom, meshMaterial );
+const tape2 = new THREE.Mesh ( tapeGeom, meshMaterial );
+
+tape1.rotation.z = Math.PI / 2;
+tape2.rotation.z = Math.PI / 2;
+
+tape1.position.z = -2;
+tape2.position.z = 2;
+tape1.position.y = 3;
+tape2.position.y = 3;
+
+const camera = new THREE.Object3D ();
+
+camera.add ( body );
+camera.add ( lens );
+camera.add ( tape1 );
+camera.add ( tape2 );
+
+return camera;
+}
+
+function updateCameraBody ( camera, cameraBody, offset ){
+	cameraBody.position.copy ( camera.position );
+	cameraBody.position.z += offset;
+	cameraBody.quaternion.copy ( camera.quaternion );
+}
+
 function render() {
 
 	// move figure
         step += 0.03;
         king.position.z = 0 + ( 25 * (Math.cos(step)));
         king.position.y = 0 + ( 20 * Math.abs(Math.sin(step)));
+
+	var targetUP = new THREE.Vector3 ( 0, 1, 0 );
         
-        //camera3.lookAt ( king.position );
+	if ( king.position.z >= 0.5 && king.position.z <= -0.5 ){
+		targetUP.set ( 0, 1, 0 );
+	}
+	if ( king.position.z < 5.5 && king.position.z >= 4.5 ){
+		targetUP.set ( 0.5, 0.5, 0 );
+	}
+	if ( king.position.z > -5.5 && king.position.z <= -4.5 ){
+		targetUP.set ( 0.5, 0.5, 0 );
+	}
         
-        if ( king.position.z >= 5 ) {
-        	camera3.up = new THREE.Vector3 ( 0, 1, 0 );
-        }
-        
-        if ( king.position.z < 5 & king.position.z > -5 ){
-        	camera3.up = new THREE.Vector3 ( 0.5 , 0.5, 0 ).normalize ();
-        }
-        
-        if ( king.position.z <= -5 ) {
-        	camera3.up = new THREE.Vector3 ( 0, 1, 0 );
-        }
-        
+	camera3.up.lerp ( targetUP, 0.05 );
         camera3.lookAt ( king.position );
+
+	updateCameraBody ( camera2, cameraBody2, 6 );
+	updateCameraBody ( camera3, cameraBody3, -6 );
         
         // render
 	renderer.render( scene2, camera );
 	requestAnimationFrame( render );
-	//trackBallControls.update(); 
 }
