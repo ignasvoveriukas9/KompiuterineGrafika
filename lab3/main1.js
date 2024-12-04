@@ -27,11 +27,11 @@ var axesHelper = new THREE.AxesHelper ( 20 );
 scene.add ( axesHelper );
 
 // add abientLight
-const ambiantLight = new THREE.AmbientLight ( 0xffffff, 1 );
+const ambiantLight = new THREE.AmbientLight ( 0xffffff, 2 );
 scene.add ( ambiantLight );
 
 //add the shape
-var shape = generateShapeWithUV ( generatePoints ( 10, 20, 5000 ) );
+var shape = generateShapeWithUV ( generatePoints ( 10, 20, 100 ) );
 scene.add ( shape );
 
 const trackBallControls = new TrackballControls ( camera, renderer.domElement );

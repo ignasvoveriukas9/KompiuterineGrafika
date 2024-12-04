@@ -3,62 +3,56 @@ import { TrackballControls } from 'three/examples/jsm/controls/TrackballControls
 import { GUI } from 'dat.gui';
 import { ConvexGeometry } from 'three/addons/geometries/ConvexGeometry.js';
 
-const scene2 = new THREE.Scene();
-const camera1 = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-const camera2 = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-const camera3 = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+const scene = new THREE.Scene ();
+const camera1 = new THREE.PerspectiveCamera ( 45, window.innerWidth / window.innerHeight, 0.1, 1000 );
+const camera2 = new THREE.PerspectiveCamera ( 45, window.innerWidth / window.innerHeight, 0.1, 1000 );
+const camera3 = new THREE.PerspectiveCamera ( 45, window.innerWidth / window.innerHeight, 0.1, 1000 );
 
-//const cameraBody1 = getCameraBody ();
 const cameraBody2 = getCameraBody ();
 const cameraBody3 = getCameraBody ();
 
-//scene2.add ( cameraBody1 );
-scene2.add ( cameraBody2 );
-scene2.add ( cameraBody3 );
+scene.add ( cameraBody2 );
+scene.add ( cameraBody3 );
 
-const helper = new THREE.CameraHelper( camera2 );
-scene2.add( helper );
+const helper = new THREE.CameraHelper ( camera2 );
+scene.add ( helper );
 
-
-// position and point the camera 1 to the center of the scene
 camera1.position.x = -100;
 camera1.position.y = 80;
 camera1.position.z = 120;
-camera1.lookAt(scene2.position);
+camera1.lookAt ( scene.position );
 
 camera3.position.x = 0;
 camera3.position.y = 120;
 camera3.position.z = 0;
 
-var renderer = new THREE.WebGLRenderer({antialias: true});
-renderer.setSize( window.innerWidth, window.innerHeight );
-renderer.setClearColor( 0xEEEEEE, 1.0);
+var renderer = new THREE.WebGLRenderer ( { antialias: true } );
+renderer.setSize ( window.innerWidth, window.innerHeight );
+renderer.setClearColor ( 0xEEEEEE, 1.0 );
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap; // Use soft shadows for better results
 renderer.outputColorSpace = THREE.SRGBColorSpace;
-document.body.appendChild( renderer.domElement );
+document.body.appendChild ( renderer.domElement );
 
 // axes helper
-var axesHelper = new THREE.AxesHelper( 20 );
-scene2.add ( axesHelper );
+var axesHelper = new THREE.AxesHelper ( 20 );
+scene.add ( axesHelper );
 
 // add abientLight
 const ambiantLight = new THREE.AmbientLight ( 0xffffff, 1 );
-scene2.add ( ambiantLight );
-
-// scene 2
+scene.add ( ambiantLight );
 
 // add spotlight for the shadows
-var spotLight = new THREE.SpotLight( 0xffffff, 250 );
-spotLight.position.set( 30, 50, 40 );
-spotLight.target.position.set( 0, 0, 0 );
+var spotLight = new THREE.SpotLight ( 0xffffff, 250 );
+spotLight.position.set ( 30, 50, 40 );
+spotLight.target.position.set ( 0, 0, 0 );
 spotLight.castShadow = true;
 spotLight.decay = 1.5;
-scene2.add( spotLight );
-scene2.add( spotLight.target );
+scene.add ( spotLight );
+scene.add ( spotLight.target );
 
-const loader = new THREE.TextureLoader();
-const texture = loader.load( './tiles_0059_color_1k.jpg' );
+const loader = new THREE.TextureLoader ();
+const texture = loader.load ( './tiles_0059_color_1k.jpg' );
 texture.colorSpace = THREE.SRGBColorSpace;
 
 // Set the texture to repeat
@@ -66,19 +60,20 @@ texture.wrapS = THREE.RepeatWrapping; // Horizontal wrapping
 texture.wrapT = THREE.RepeatWrapping; // Vertical wrapping
 
 // Set how many times the texture should repeat
-texture.repeat.set(4, 4); // Adjust these values for desired tiling
-texture.offset.set(0.25, 0.25); // Shift the texture halfway along each axis
+texture.repeat.set ( 4, 4 ); // Adjust these values for desired tiling
+texture.offset.set ( 0.25, 0.25 ); // Shift the texture halfway along each axis
 
-var planeGeometry = new THREE.PlaneGeometry(1000,1000);
-var planeMaterial = new THREE.MeshStandardMaterial({map: texture,});
-var GroundPlane = new THREE.Mesh(planeGeometry,planeMaterial);
+// add ground plane
+var planeGeometry = new THREE.PlaneGeometry ( 1000,1000 );
+var planeMaterial = new THREE.MeshStandardMaterial ( { map: texture, } );
+var GroundPlane = new THREE.Mesh ( planeGeometry,planeMaterial );
 GroundPlane.receiveShadow  = true;
 GroundPlane.rotation.x = -Math.PI * 0.5;
-scene2.add ( GroundPlane );
+scene.add ( GroundPlane );
 
 var kingStatic = generateFigure ();
 kingStatic.position.x = -100;
-scene2.add ( kingStatic );
+scene.add ( kingStatic );
 
 camera2.position.x = -100;
 camera2.position.y = 23;
@@ -87,18 +82,16 @@ camera2.position.z = 100 / ( 2 * Math.tan ( 0.5 * 50 * Math.PI / 180 ) );
 camera2.lookAt ( new THREE.Vector3 ( kingStatic.position.x, kingStatic.position.y + 35, kingStatic.position.z ) );
 
 var king = generateFigure ();
-scene2.add ( king );
+scene.add ( king );
 
 camera3.lookAt ( king.position );
 
-//const cameraBody = getCameraBody ();
-//scene2.add ( cameraBody );
-
+// set initial camera to camera1
 var camera = camera1;
 
-var controls = new function() {
+var controls = new function () {
 	this.cam1_fov = 50;
-	this.cam2_zoomFactor = 50; // Factor to control dolly zoom
+	this.cam2_zoomFactor = 50; // fov to control dolly zoom
             
     	this.updateFOV = function () {
         	camera1.fov = this.cam1_fov; // Update the camera's FOV
@@ -106,9 +99,9 @@ var controls = new function() {
     	};
     	
     	this.updateDollyZoom = function () {
-        // Adjust the camera's FOV based on zoomFactor
-        camera2.fov = this.cam2_zoomFactor; // Example calculation
-        camera2.updateProjectionMatrix();
+        // Adjust the camera's FOV
+        camera2.fov = this.cam2_zoomFactor;
+        camera2.updateProjectionMatrix ();
 
         // Adjust the camera's position.z to simulate dolly movement
         var distance = 100 / ( 2 * Math.tan ( 0.5 * this.cam2_zoomFactor * Math.PI / 180 ) )
@@ -117,37 +110,36 @@ var controls = new function() {
         camera2.lookAt ( new THREE.Vector3 ( kingStatic.position.x, kingStatic.position.y + 23, kingStatic.position.z ) );
         };
         
-        this.cam_1 = function() {
+        this.cam_1 = function () {
 		camera = camera1;
 	};
 	
-	this.cam_2 = function() {
+	this.cam_2 = function () {
 		camera = camera2;
 	};
 	
-	this.cam_3 = function() {
+	this.cam_3 = function () {
 		camera = camera3;
 	};
 }
 
 var gui = new GUI ();
-//gui.add ( controls, 'fov', 10, 100 ).step ( 1 ).onChange ( controls.updateFOV () );
-gui.add(controls, 'cam1_fov', 10, 100).step(1).onChange(function(value) {
+gui.add ( controls, 'cam1_fov', 10, 100) .step ( 1 ).onChange ( function ( value ) {
     controls.cam1_fov = value;         // Update the control's FOV value
-    controls.updateFOV();         // Call the update function to apply changes
+    controls.updateFOV ();         // Call the update function to apply changes
 });
-gui.add(controls, 'cam2_zoomFactor', 30, 120).step(1).onChange(function (value) {
+gui.add ( controls, 'cam2_zoomFactor', 30, 120 ).step ( 1 ).onChange ( function ( value ) {
     controls.cam2_zoomFactor = value;    // Update the control's zoom factor
-    controls.updateDollyZoom();    // Apply the dolly zoom effect
+    controls.updateDollyZoom ();    // Apply the dolly zoom effect
 });
 
-gui.add(controls, 'cam_1');
-gui.add(controls, 'cam_2');
-gui.add(controls, 'cam_3');
+gui.add ( controls, 'cam_1' );
+gui.add ( controls, 'cam_2' );
+gui.add ( controls, 'cam_3' );
 
 var step = 0;
 
-render();
+render ();
 
 function generateFigure () {
             
@@ -173,8 +165,6 @@ function generateFigure () {
             crossMesh.position.z = -1;
             crossMesh.position.x = -3;
             
-            //scene2.add ( crossMesh );
-            
             var figure = new THREE.Object3D ();
             
             latheMesh.castShadow = true;
@@ -183,12 +173,11 @@ function generateFigure () {
             figure.add ( latheMesh );
             figure.add ( crossMesh );
 
-            //scene2.add(latheMesh);
             return figure;
 }
 
-function drawCrossShape() {
-	var shape = new THREE.Shape();
+function drawCrossShape () {
+	var shape = new THREE.Shape ();
 
 	shape.moveTo ( 2, 0 );
 	shape.lineTo ( 4, 0 );
@@ -246,32 +235,25 @@ function updateCameraBody ( camera, cameraBody, offset ){
 	cameraBody.quaternion.copy ( camera.quaternion );
 }
 
-function render() {
+function render () {
 
 	// move figure
-        step += 0.03;
-        king.position.z = 0 + ( 25 * (Math.cos(step)));
-        king.position.y = 0 + ( 20 * Math.abs(Math.sin(step)));
+        step += 0.003;
+        king.position.z = 0 + ( 25 * ( Math.cos ( step ) ) );
+        king.position.y = 0 + ( 20 * Math.abs ( Math.sin ( step ) ) );
+        
+        var fromZero = false;
 
 	var targetUP = new THREE.Vector3 ( 0, 1, 0 );
-        
-	if ( king.position.z >= 0.5 && king.position.z <= -0.5 ){
-		targetUP.set ( 0, 1, 0 );
-	}
-	if ( king.position.z < 5.5 && king.position.z >= 4.5 ){
-		targetUP.set ( 0.5, 0.5, 0 );
-	}
-	if ( king.position.z > -5.5 && king.position.z <= -4.5 ){
-		targetUP.set ( 0.5, 0.5, 0 );
-	}
-        
-	camera3.up.lerp ( targetUP, 0.05 );
+	
+	camera3.up = new THREE.Vector3 ( 0.5 * (1 - ( Math.abs ( king.position.z ) / 25 ) ), 1 - 0.5 * ( Math.abs ( king.position.z ) / 25 ), 0 );
+	
         camera3.lookAt ( king.position );
 
 	updateCameraBody ( camera2, cameraBody2, 6 );
 	updateCameraBody ( camera3, cameraBody3, -6 );
         
         // render
-	renderer.render( scene2, camera );
-	requestAnimationFrame( render );
+	renderer.render ( scene, camera );
+	requestAnimationFrame ( render );
 }
