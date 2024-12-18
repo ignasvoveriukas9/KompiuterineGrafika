@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>lab3</title>
+		
+		<style>
+			body { margin: 0; }
+		</style>
+	</head>
+	<body>
+		<script type="module" src="/main1.js"></script>
+	</body>
+	<script type="x-shader/x-vertex" id="vertexShader">
+		precision mediump float;
+	
+    		varying vec3 vPosition;
+    		varying vec3 vNormal; 
+		uniform float uScale;
+		uniform float uEdge;
+		varying vec2 vUv;
+    		uniform float dx, dy, dz;
+
+
+		void main(void) {
+	    		vUv = uv;
+			vNormal = normalMatrix * normal;
+			vPosition = position;
+			gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0 );
+		}
+	</script>
+		 
+	<script type="x-shader/x-vertex" id="fragmentShader">
+		precision mediump float;	
+		
+    		varying vec3 vPosition;
+    		varying vec3 vNormal; 
+		uniform float uScale;
+		uniform float uEdge;
+		varying vec2 vUv;
+    		uniform float dx, dy, dz;
+
+
+		void main() {
+			// Normalized pixel coordinates (from 0 to 1)
+			//vec2 uv = fragCoord/iResolution.xy;
+			vec2 uv = fract(vUv * uScale);
+			    
+			float u = uv.x;
+			float v = uv.y;
+
+			// main colors
+			vec3 blue = vec3(0.0,0.0,1.0);
+    			vec3 yellow = vec3(1.0,1.0,0.0);
+
+      			if (vPosition.y > -1.0 && vPosition.y < 4.0 && vPosition.x < 18.5 && vPosition.x > -18.5){
+
+      				vec3 color = yellow;
+			  
+				float f1 = (u-0.25) * (u-0.25) + (v-0.75) * (v-0.75) - 0.02;
+    				float f2 = 0.5 - u;
+    				float f3 = -u + v;
+    				float f4 = -0.5 + v;
+    				float f5 = (u-(0.5)) * (u-(0.5)) + (v) * (v) - (0.25);
+    				float f = f1 * f2 * f3 * f4 * f5;
+
+    				float grad = length(vec2(dFdx(f),dFdy(f))); 
+    				float d = uEdge*grad;
+    				float edgeFactor = smoothstep(-d, d, f);
+				color = mix(blue,yellow,edgeFactor);
+
+				// Output to screen
+				gl_FragColor = vec4(color,1.0);
+      			} else {
+        			vec3 lightDir = normalize(vec3(dx,dy,dz)); 
+		    		float intensity = dot(lightDir,normalize(vNormal));
+	      			vec3 color = vec3(intensity);
+		    		gl_FragColor = vec4(color,1.0);
+      			}
+		}
+	</script>
+
+	<script type="x-shader/x-vertex" id="vertexShader2">
+
+		precision mediump float;
+
+		varying vec3 vPosition; 
+		varying vec3 vPosInCamera;
+		varying vec3 vNormal; 
+		varying vec2 vUv;
+		uniform float uShininess;
+  		uniform float uLightX, uLightY, uLightZ;
+	
+		void main(void) {
+			vUv = uv;
+			vNormal = normalMatrix * normal;
+			vPosition = position;
+	    		vPosInCamera = (viewMatrix * modelMatrix * vec4(position, 1.0 )).xyz;
+    			gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0 );         
+		}
+    	</script>
+ 
+    	<script type="x-shader/x-vertex" id="fragmentShader2">
+		precision mediump float;	
+
+		varying vec3 vPosition; 
+		varying vec3 vPosInCamera;	
+		varying vec3 vNormal; 
+		varying vec2 vUv;
+		uniform float uLightX, uLightY, uLightZ;
+  		uniform float uShininess;
+	
+		void main() {
+
+    			vec3 nNormal = normalize(vNormal);        
+
+			vec3 ambColor = vec3(0.1,0.1,0.1);
+    			vec3 diffColor = vec3(0.6,0.6,0.6);
+			vec3 specColor = vec3(0.4,0.4,0.3);
+
+    			vec3 lightDir = normalize(vec3(uLightX, uLightY, uLightZ) - vPosInCamera);
+			float diffLightWeight = max(dot(nNormal,lightDir),0.0);		
+        		vec3 eyeDir = normalize(-vPosInCamera);
+        		vec3 reflDir = -reflect(lightDir, nNormal);
+        		float specLightWeight = pow(max(dot(reflDir, eyeDir), 0.0), uShininess);
+			vec3 lightWeight = ambColor + diffColor * diffLightWeight + specColor * specLightWeight;                
+	    		vec3 color = lightWeight;  
+			gl_FragColor = vec4(color,1.0);   
+		}
+	</script>
+
+</html>
